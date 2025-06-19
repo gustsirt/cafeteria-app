@@ -31,7 +31,5 @@ export async function getWhatsappConfig() {
     range: config,
   });
   const config = Object.fromEntries(res.data.values || []);
-  console.log("config: ", config);
-
   return config.whatsapp_cocina || '';
 }

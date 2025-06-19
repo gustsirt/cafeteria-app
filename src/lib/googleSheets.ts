@@ -1,19 +1,21 @@
 import { GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_SHEETS_ID, CONFIG_SHEET } from "astro:env/server"
 import { google } from 'googleapis';
 
-const SHEET_ID = GOOGLE_SHEETS_ID;
+// 🛡️ Crea el authClient
 const auth = new google.auth.GoogleAuth({
   credentials: {
     client_email: GOOGLE_SERVICE_ACCOUNT_EMAIL,
     private_key: GOOGLE_PRIVATE_KEY,
   },
-  scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
+
+// Cliente de Sheets con auth incluido
 const sheets = google.sheets({ version: 'v4', auth });
 
 export async function getArticulos() {
   const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
+    spreadsheetId: GOOGLE_SHEETS_ID,
     range: 'Articulos!A2:D',
   });
 
@@ -24,9 +26,12 @@ export async function getArticulos() {
 
 export async function getWhatsappConfig() {
   const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: 'Config!A2:B',
+    spreadsheetId: GOOGLE_SHEETS_ID,
+    // range: 'Config!A2:B',
+    range: config,
   });
   const config = Object.fromEntries(res.data.values || []);
+  console.log("config: ", config);
+
   return config.whatsapp_cocina || '';
 }

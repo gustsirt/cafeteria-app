@@ -2,4 +2,12 @@
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout> Inicio </Layout>
+<Layout>
+  <h1 class="text-2xl font-bold mb-4">Pedidos por Mesa</h1>
+
+  <div id="app"></div>
+
+  <script type="module">
+    import "/src/scripts/pedidos.js";
+  </script>
+</Layout>

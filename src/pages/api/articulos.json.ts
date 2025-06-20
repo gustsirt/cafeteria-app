@@ -1,8 +1,9 @@
 import type { APIRoute } from "astro";
-import { getArticulos, getWhatsappConfig } from "../../lib/googleSheets.ts";
+import { getArticulos } from "../../lib/googleSheets.ts";
 
-export const GET: APIRoute = async () => {
-  const config = await getWhatsappConfig();
-  const articulos = await getArticulos(config.RangoProductos);
+export const GET: APIRoute = async ({ url }) => {
+  const rango = url.searchParams.get("range") || "";
+  if (rango == "") return new Response("Rango Articulos no válido");
+  const articulos = await getArticulos(rango);
   return new Response(JSON.stringify(articulos));
 };

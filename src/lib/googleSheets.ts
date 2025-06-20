@@ -19,18 +19,18 @@ const auth = new google.auth.GoogleAuth({
 // Cliente de Sheets con auth incluido
 const sheets = google.sheets({ version: "v4", auth });
 
-export async function getArticulos() {
+export async function getArticulos(range: string) {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: GOOGLE_SHEETS_ID,
-    range: "Articulos!A2:D",
+    range,
   });
 
   return (res.data.values || []).map(
-    ([codigo, descripcion, precio, categoria]) => ({
+    ([codigo, detalle, categoria, descripcion]) => ({
       codigo,
-      descripcion,
-      precio,
+      detalle,
       categoria,
+      descripcion,
     }),
   );
 }

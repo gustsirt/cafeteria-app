@@ -26,11 +26,11 @@ export async function getArticulos(range: string) {
   });
 
   return (res.data.values || []).map(
-    ([codigo, detalle, categoria, descripcion]) => ({
+    ([codigo, categoria, descripcion, precio]) => ({
       codigo,
-      detalle,
       categoria,
       descripcion,
+      precio,
     }),
   );
 }

@@ -8,6 +8,8 @@ let mesa = '';
 
 async function init() {
   try {
+    // --- Cargar la configuración y los artículos
+
     // ! por ahora sin uso
     // const configres = await fetch('/api/config.json');
     // if (!configres.ok) throw new Error("Error al cargar la config");
@@ -23,14 +25,19 @@ async function init() {
     //   console.warn("No se especificó RangoProductos en la config.");
     // }
 
-    const cats = [...new Set(articulos.map(a => a.categoria))];
-    mesa = prompt("Mesa N°:");
+    const cats = [...new Set(articulos.map((a) => a.categoria))];
 
+    // Solicita el Mozo
+    let mozo = localStorage.getItem("mozo") || "";
+    if (!mozo) {
+      mozo = prompt("¿Nombre del mozo?");
+      localStorage.setItem("mozo", mozo);
+    }
 
     app.innerHTML = `
     <label class="block mb-2">Filtrar por categoría:
       <select id="filtro" class="ml-2 border p-1 rounded">
-        ${cats.map(c => `<option>${c}</option>`).join('')}
+        ${cats.map((c) => `<option>${c}</option>`).join("")}
       </select>
     </label>
     <ul id="lista" class="space-y-2"></ul>
@@ -41,15 +48,16 @@ async function init() {
   `;
 
     renderLista();
-    document.getElementById('filtro').addEventListener('change', renderLista);
-    document.getElementById('whatsapp').addEventListener('click', enviarWhatsApp);
-    document.getElementById('facturar').addEventListener('click', () => {
-      if (confirm('¿Borrar pedido?')) {
+    document.getElementById("filtro").addEventListener("change", renderLista);
+    document
+      .getElementById("whatsapp")
+      .addEventListener("click", enviarWhatsApp);
+    document.getElementById("facturar").addEventListener("click", () => {
+      if (confirm("¿Borrar pedido?")) {
         pedido = [];
         renderLista();
       }
     });
-
   } catch (err) {
     console.error("Error inicializando app:", err);
     app.innerHTML = `<p class="text-red-600">Error cargando datos.</p>`;

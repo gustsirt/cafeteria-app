@@ -1,15 +1,15 @@
 import type { APIRoute } from "astro";
 import { getArticulos } from "../../lib/googleSheets.ts";
+import { ARTICLES_SHEET } from "astro:env/server";
 
-export const GET: APIRoute = async ({ request }) => {
-  const { searchParams } = new URL(request.url);
-  const rango = searchParams.get("range") || "TPRODUCTOS";
+export const GET: APIRoute = async () => {
+  const range = ARTICLES_SHEET;
 
-  if (!rango) {
+  if (!range || typeof range !== "string") {
     return new Response("Rango Articulos no válido", { status: 400 });
   }
 
-  const articulos = await getArticulos(rango);
+  const articulos = await getArticulos(range);
   return new Response(JSON.stringify(articulos), {
     headers: { "Content-Type": "application/json" },
   });

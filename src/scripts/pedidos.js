@@ -8,19 +8,20 @@ let mesa = '';
 
 async function init() {
   try {
-    const configres = await fetch('/api/config.json');
-    if (!configres.ok) throw new Error("Error al cargar la config");
-    config = await configres.json();
-    console.log("Config cargada:", config);
+    // ! por ahora sin uso
+    // const configres = await fetch('/api/config.json');
+    // if (!configres.ok) throw new Error("Error al cargar la config");
+    // config = await configres.json();
+    // console.log("Config cargada:", config);
 
-    if (config.RangoProductos) {
-      const articulosres = await fetch(`/api/articulos.json?range=${config.RangoProductos}`);
-      if (!articulosres.ok) throw new Error("Error al cargar los artículos");
-      articulos = await articulosres.json();
-      console.log("Artículos cargados:", articulos);
-    } else {
-      console.warn("No se especificó RangoProductos en la config.");
-    }
+    // if (config.RangoProductos) {
+    const articulosres = await fetch(`/api/articulos.json`);
+    if (!articulosres.ok) throw new Error("Error al cargar los artículos");
+    articulos = await articulosres.json();
+    console.log("Artículos cargados:", articulos);
+    // } else {
+    //   console.warn("No se especificó RangoProductos en la config.");
+    // }
 
     const cats = [...new Set(articulos.map(a => a.categoria))];
     mesa = prompt("Mesa N°:");
@@ -41,7 +42,7 @@ async function init() {
 
     renderLista();
     document.getElementById('filtro').addEventListener('change', renderLista);
-document.getElementById('whatsapp').addEventListener('click', enviarWhatsApp);
+    document.getElementById('whatsapp').addEventListener('click', enviarWhatsApp);
     document.getElementById('facturar').addEventListener('click', () => {
       if (confirm('¿Borrar pedido?')) {
         pedido = [];

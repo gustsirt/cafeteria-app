@@ -161,38 +161,6 @@ function renderLista() {
 }
 
 // ==============================
-// 📤 Enviar pedido al servidor
-// ==============================
-async function enviarOrden() {
-  if (pedido.length === 0) {
-    alert("No hay artículos en el pedido.");
-    return;
-  }
-
-  const fecha = new Date().toLocaleString("es-AR");
-  const payload = {
-    mesa,
-    mozo,
-    pedido,
-    fecha,
-  };
-
-  const res = await fetch("/api/orders.json", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (res.ok) {
-    alert("✅ Pedido enviado a cocina.");
-    pedido = [];
-    renderResumen();
-  } else {
-    alert("❌ Error al enviar el pedido.");
-  }
-}
-
-// ==============================
 // ➕ Agregar artículo al pedido
 // ==============================
 window.agregarPedido = (codigo) => {
@@ -226,6 +194,38 @@ function renderResumen() {
     </ul>
     <div class="font-medium">💰 Total: $${total.toFixed(2)}</div>
   `;
+}
+
+// ==============================
+// 📤 Enviar pedido al servidor
+// ==============================
+async function enviarOrden() {
+  if (pedido.length === 0) {
+    alert("No hay artículos en el pedido.");
+    return;
+  }
+
+  const fecha = new Date().toLocaleString("es-AR");
+  const payload = {
+    mesa,
+    mozo,
+    pedido,
+    fecha,
+  };
+
+  const res = await fetch("/api/orders.json", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (res.ok) {
+    alert("✅ Pedido enviado a cocina.");
+    pedido = [];
+    renderResumen();
+  } else {
+    alert("❌ Error al enviar el pedido.");
+  }
 }
 
 // ==============================

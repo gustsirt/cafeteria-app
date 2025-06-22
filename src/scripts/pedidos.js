@@ -17,7 +17,7 @@ async function init() {
     // console.log("Config cargada:", config);
 
     // if (config.RangoProductos) {
-    const articulosres = await fetch(`/api/articulos.json`);
+    const articulosres = await fetch(`/api/articles.json`);
     if (!articulosres.ok) throw new Error("Error al cargar los artículos");
     articulos = await articulosres.json();
     console.log("Artículos cargados:", articulos);

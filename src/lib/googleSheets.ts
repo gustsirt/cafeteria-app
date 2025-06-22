@@ -4,6 +4,7 @@ import {
   GOOGLE_PRIVATE_KEY,
   GOOGLE_SHEETS_ID,
   CONFIG_SHEET,
+  ARTICLES_SHEET,
   ORDER_SHEET,
 } from "astro:env/server";
 import { google } from "googleapis";
@@ -20,10 +21,10 @@ const auth = new google.auth.GoogleAuth({
 // Cliente de Sheets con auth incluido
 const sheets = google.sheets({ version: "v4", auth });
 
-export async function getArticulos(range: string) {
+export async function getArticulos() {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: GOOGLE_SHEETS_ID,
-    range,
+    range: ARTICLES_SHEET,
   });
 
   return (res.data.values || []).map(

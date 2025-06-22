@@ -14,6 +14,7 @@ export default defineConfig({
       GOOGLE_PRIVATE_KEY: envField.string({ context: "server", access: "secret" }),
       GOOGLE_SHEETS_ID: envField.string({ context: "server", access: "secret" }),
       CONFIG_SHEET: envField.string({ context: "server", access: "secret" }),
+      ARTICLES_SHEET: envField.string({ context: "server", access: "secret" }),
     }
   }
 });

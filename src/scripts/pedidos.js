@@ -108,7 +108,7 @@ window.seleccionarMesa = (mesaId) => {
 
   <div class="mt-6 flex flex-wrap gap-2">
     <button id="preparar" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">📱 Enviar a cocina</button>
-    <button id="facturar" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">✅ Facturar</button>
+    <button onclick="facturarMesa()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">✅ Facturar</button>
     <button onclick="init()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">⬅️ Volver</button>
   </div>
 
@@ -227,6 +227,71 @@ async function enviarOrden() {
     alert("❌ Error al enviar el pedido.");
   }
 }
+
+// ==============================
+// 💸 Facturar pedido
+// ==============================
+window.facturarMesa = async () => {
+  const mesaInfo = mesas.find(m => m.mesa === mesa);
+  if (!mesaInfo || mesaInfo.productos.length === 0) {
+    alert("Esta mesa no tiene pedidos.");
+    return;
+  }
+
+  const productos = mesaInfo.productos;
+  const detalle = productos.map(p => {
+    const art = articulos.find(a => a.codigo === p.codigo);
+    return {
+      ...p,
+      descripcion: art ? art.descripcion : p.codigo,
+    };
+  });
+
+  const total = detalle.reduce((acc, p) => acc + p.cantidad * p.precio, 0);
+
+  // Crear modal
+  const modal = document.createElement("div");
+  modal.className = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50";
+  modal.innerHTML = `
+    <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-lg relative">
+      <h2 class="text-xl font-bold mb-4">🧾 Facturar Mesa ${mesa}</h2>
+      <ul class="mb-4 space-y-2 text-sm">
+        ${detalle.map(p => `
+          <li class="flex justify-between border-b pb-1">
+            <span>
+              <button onclick="navigator.clipboard.writeText('${p.codigo}')" title="Copiar código" class="text-blue-600 underline mr-2">${p.codigo}</button>
+              ${p.descripcion}
+            </span>
+            <span>${p.cantidad} × $${p.precio} = <strong>$${(p.precio * p.cantidad).toFixed(2)}</strong></span>
+          </li>
+        `).join("")}
+      </ul>
+      <div class="text-right font-semibold text-lg mb-4">💰 Total: $${total.toFixed(2)}</div>
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('modal-factura').remove()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancelar</button>
+        <button onclick="confirmarFactura('${mesa}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Confirmar</button>
+      </div>
+    </div>
+  `;
+  modal.id = "modal-factura";
+  document.body.appendChild(modal);
+};
+
+window.confirmarFactura = async (mesaId) => {
+  const res = await fetch('/api/facturar.json', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mesa: mesaId }),
+  });
+
+  if (res.ok) {
+    alert("✅ Factura registrada. Mesa liberada.");
+    document.getElementById("modal-factura").remove();
+    await init(); // recarga las mesas
+  } else {
+    alert("❌ No se pudo facturar.");
+  }
+};
 
 // ==============================
 // ▶️ Iniciar app al cargar

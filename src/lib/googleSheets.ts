@@ -114,3 +114,59 @@ export async function getTablesOrders() {
   }
   return mesas;
 }
+
+export async function removeOrdersFromSheet(mesa: string) {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: GOOGLE_SHEETS_ID,
+    range: ORDER_SHEET,
+  });
+
+  const rows = res.data.values || [];
+  const [, ...filas] = rows;
+
+  const indicesParaBorrar = filas
+    .map((fila, i) => ({ index: i + 1, mesa: fila[1] })) // index real = +1 por header
+    .filter((fila) => fila.mesa === mesa)
+    .map((f) => f.index);
+
+  if (indicesParaBorrar.length === 0) return "Nada que borrar.";
+
+  // Borramos desde el final hacia el principio
+  indicesParaBorrar.sort((a, b) => b - a);
+
+  for (const i of indicesParaBorrar) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: GOOGLE_SHEETS_ID,
+      requestBody: {
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId: await getSheetIdFromRange(ORDER_SHEET),
+                dimension: "ROWS",
+                startIndex: i,
+                endIndex: i + 1,
+              },
+            },
+          },
+        ],
+      },
+    });
+  }
+
+  return `Borradas ${indicesParaBorrar.length} filas.`;
+}
+
+// 🧠 Devuelve el sheetId necesario para borrar filas
+async function getSheetIdFromRange(namedRange: string): Promise<number> {
+  const res = await sheets.spreadsheets.get({
+    spreadsheetId: GOOGLE_SHEETS_ID,
+    includeGridData: false,
+  });
+
+  const sheet = res.data.sheets?.find(
+    (s) => s.properties?.title === namedRange.split("!")[0],
+  );
+
+  return sheet?.properties?.sheetId || 0;
+}

@@ -4,8 +4,13 @@ import type { APIRoute } from "astro";
 import { appendToSheet } from "../../lib/googleSheets";
 
 export const POST: APIRoute = async ({ request }) => {
-  const id = Date.now(); // ID único por pedido
-  const { mesa, mozo, pedido, fecha } = await request.json();
+  const { id, mesa, mozo, pedido, fecha } = await request.json();
+
+  let nid = id;
+
+  if (!id) {
+    nid = Date.now();
+  }
 
   if (!pedido || !Array.isArray(pedido)) {
     return new Response(JSON.stringify({ error: "Pedido inválido" }), {
@@ -14,7 +19,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const values = pedido.map((p) => [
-    id,
+    nid,
     mesa,
     mozo,
     p.codigo,

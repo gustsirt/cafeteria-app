@@ -78,31 +78,38 @@ window.seleccionarMesa = (mesaId) => {
   const cats = [...new Set(articulos.map(a => a.categoria))];
 
   app.innerHTML = `
-    <h2 class="text-xl font-bold mb-2">Mesa ${mesa}</h2>
-    <div>
-      <small>${cantidad} producto(s) - $${total.toFixed(2)}</small>
-      ${productos.length > 0 ? `
-            <ul class="mt-2 text-sm text-gray-700">
-              ${productos.map(p => {
+  <h2 class="text-2xl font-bold mb-2">🪑 Mesa ${mesa}</h2>
+  <div class="mb-4 text-gray-700">
+    <div><strong>${cantidad}</strong> producto(s)</div>
+    <div>Total: <strong>$${total.toFixed(2)}</strong></div>
+    ${productos.length > 0 ? `
+      <ul class="mt-2 text-sm text-gray-800">
+        ${productos.map(p => {
     const articulo = articulos.find(a => a.codigo === p.codigo);
     const nombre = articulo ? articulo.descripcion : p.codigo;
     return `<li>- ${p.cantidad} x ${nombre}</li>`;
   }).join("")}
-            </ul>
-          ` : ""}
-    </div>
-    <div class="mt-4">
-      <button id="whatsapp" class="bg-green-500 text-white px-4 py-2 rounded mr-2">📱 Enviar a cocina</button>
-      <button id="facturar" class="bg-red-500 text-white px-4 py-2 rounded">✅ Facturar</button>
-      <button onclick="init()" class="bg-gray-300 px-4 py-2 rounded">⬅️ Volver</button>
-    </div>
-    <label class="block mb-2">Filtrar por categoría:
-      <select id="filtro" class="ml-2 border p-1 rounded">
-        ${cats.map((c) => `<option>${c}</option>`).join("")}
-      </select>
-    </label>
-    <ul id="lista" class="space-y-2"></ul>
-  `;
+      </ul>
+    ` : ""}
+  </div>
+
+  <div class="mt-6 flex flex-wrap gap-2">
+    <button id="whatsapp" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">📱 Enviar a cocina</button>
+    <button id="facturar" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">✅ Facturar</button>
+    <button onclick="init()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">⬅️ Volver</button>
+  </div>
+  
+  <label class="block mb-4">
+    <span class="block mb-1 text-sm font-medium">Filtrar por categoría</span>
+    <select id="filtro" class="w-full border p-2 rounded">
+      ${cats.map(c => `<option>${c}</option>`).join("")}
+    </select>
+  </label>
+
+  <ul id="lista" class="space-y-2"></ul>
+
+`;
+
 
   renderLista();
   document.getElementById("filtro").addEventListener("change", renderLista);
@@ -112,10 +119,12 @@ function renderLista() {
   const cat = document.getElementById('filtro').value;
   const lista = articulos.filter(a => a.categoria === cat);
   document.getElementById('lista').innerHTML = lista.map(a => `
-    <li class="border p-2 rounded flex justify-between items-center">
-      <span>${a.descripcion} - $ ${a.precio}
-      </span>
-      <button onclick="agregarPedido('${a.codigo}')" class="bg-blue-500 text-white px-2 py-1 rounded">+</button>
+    <li class="flex items-center justify-between border p-3 rounded shadow-sm">
+      <div class="text-sm">
+        <div class="font-medium">${a.descripcion}</div>
+        <div class="text-gray-600">$${a.precio}</div>
+      </div>
+      <button onclick="agregarPedido('${a.codigo}')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-lg leading-none">＋</button>
     </li>
   `).join('');
 }

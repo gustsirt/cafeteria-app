@@ -8,6 +8,7 @@ export const GET: APIRoute = async () => {
       mesa: "1",
       productos: [
         {
+          id: "2",
           codigo: "1030",
           cantidad: 2,
           mozo: "Gustavo",
@@ -20,6 +21,7 @@ export const GET: APIRoute = async () => {
       mesa: "2",
       productos: [
         {
+          id: "1",
           codigo: "1006",
           cantidad: 1,
           mozo: "Gustavo",
@@ -27,6 +29,7 @@ export const GET: APIRoute = async () => {
           fecha: "22/6/2025 10:55",
         },
         {
+          id: "3",
           codigo: "1030",
           cantidad: 2,
           mozo: "Gustavo",

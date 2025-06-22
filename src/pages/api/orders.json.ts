@@ -4,6 +4,7 @@ import type { APIRoute } from "astro";
 import { appendToSheet } from "../../lib/googleSheets";
 
 export const POST: APIRoute = async ({ request }) => {
+  const id = Date.now(); // ID único por pedido
   const { mesa, mozo, pedido, fecha } = await request.json();
 
   if (!pedido || !Array.isArray(pedido)) {
@@ -13,6 +14,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const values = pedido.map((p) => [
+    id,
     mesa,
     mozo,
     p.codigo,

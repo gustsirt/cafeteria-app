@@ -98,11 +98,12 @@ export async function getTablesOrders() {
   }));
 
   for (const fila of filas) {
-    const [mesa, mozo, codigo, cantidad, precio, fecha] = fila;
+    const [id, mesa, mozo, codigo, cantidad, precio, fecha] = fila;
 
     const mesaEncontrada = mesas.find((m) => m.mesa === mesa);
     if (mesaEncontrada) {
       mesaEncontrada.productos.push({
+        id,
         codigo,
         cantidad: Number(cantidad),
         mozo,

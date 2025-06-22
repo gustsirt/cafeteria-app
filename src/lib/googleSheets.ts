@@ -4,8 +4,9 @@ import {
   GOOGLE_PRIVATE_KEY,
   GOOGLE_SHEETS_ID,
   CONFIG_SHEET,
-  ARTICLES_SHEET,
-  ORDER_SHEET,
+  ARTICLES_SHEET, // getArticulos
+  ORDER_SHEET, // appendToSheet y getTablesOrders
+  TOTAL_MESAS, // getTablesOrders
 } from "astro:env/server";
 import { google } from "googleapis";
 
@@ -21,6 +22,17 @@ const auth = new google.auth.GoogleAuth({
 // Cliente de Sheets con auth incluido
 const sheets = google.sheets({ version: "v4", auth });
 
+export async function getWhatsappConfig() {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: GOOGLE_SHEETS_ID,
+    // range: 'Config!A2:B',
+    range: CONFIG_SHEET,
+  });
+  const values = res.data.values || [];
+  const config = Object.fromEntries(values);
+  return config || "";
+}
+
 export async function getArticulos() {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: GOOGLE_SHEETS_ID,
@@ -35,17 +47,6 @@ export async function getArticulos() {
       precio,
     }),
   );
-}
-
-export async function getWhatsappConfig() {
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: GOOGLE_SHEETS_ID,
-    // range: 'Config!A2:B',
-    range: CONFIG_SHEET,
-  });
-  const values = res.data.values || [];
-  const config = Object.fromEntries(values);
-  return config || "";
 }
 
 /**
@@ -77,4 +78,32 @@ export async function appendToSheet(rangeString: string, values: any[][]) {
     console.error("❌ Error en addToSheet:", error);
     throw error;
   }
+}
+
+export async function getTablesOrders() {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: GOOGLE_SHEETS_ID,
+    range: ORDER_SHEET,
+  });
+
+  const datos = res.data.values || [];
+
+  // Remover la cabecera
+  const [, ...filas] = datos;
+
+  // Inicializar estructura para cada mesa
+  const mesas = Array.from({ length: Number(TOTAL_MESAS) }, (_, i) => ({
+    mesa: (i + 1).toString(),
+    productos: [],
+  }));
+
+  for (const fila of filas) {
+    const [mesa, mozo, codigo, cantidad, fecha] = fila;
+
+    const mesaEncontrada = mesas.find((m) => m.mesa === mesa);
+    if (mesaEncontrada) {
+      mesaEncontrada.productos.push({ codigo, cantidad, mozo, fecha });
+    }
+  }
+  return mesas;
 }

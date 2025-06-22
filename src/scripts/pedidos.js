@@ -94,15 +94,22 @@ window.seleccionarMesa = (mesaId) => {
   </div>
 
   <div class="mt-6 flex flex-wrap gap-2">
-    <button id="whatsapp" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">📱 Enviar a cocina</button>
+    <button id="preparar" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">📱 Enviar a cocina</button>
     <button id="facturar" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">✅ Facturar</button>
     <button onclick="init()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">⬅️ Volver</button>
   </div>
-  
+
   <label class="block mb-4">
-    <span class="block mb-1 text-sm font-medium">Filtrar por categoría</span>
+
+  <hr class="my-4" />
+  <div>
+  <div id="resumen" class="bg-gray-100 p-4 rounded shadow-sm text-sm"></div>
+
+<hr class="my-4" />
+  <span class="block mb-1 text-sm font-medium">Filtrar por categoría</span>
     <select id="filtro" class="w-full border p-2 rounded">
-      ${cats.map(c => `<option>${c}</option>`).join("")}
+      <option value="__TODAS__">🍽️ Todas</option>
+      ${cats.map(c => `<option value="${c}">${c}</option>`).join("")}
     </select>
   </label>
 
@@ -113,21 +120,90 @@ window.seleccionarMesa = (mesaId) => {
 
   renderLista();
   document.getElementById("filtro").addEventListener("change", renderLista);
+  document.getElementById("preparar").addEventListener("click", enviarOrden);
 }
 
 function renderLista() {
   const cat = document.getElementById('filtro').value;
-  const lista = articulos.filter(a => a.categoria === cat);
-  document.getElementById('lista').innerHTML = lista.map(a => `
-    <li class="flex items-center justify-between border p-3 rounded shadow-sm">
-      <div class="text-sm">
-        <div class="font-medium">${a.descripcion}</div>
-        <div class="text-gray-600">$${a.precio}</div>
-      </div>
-      <button onclick="agregarPedido('${a.codigo}')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-lg leading-none">＋</button>
-    </li>
-  `).join('');
+  const lista = cat === "__TODAS__" ? articulos : articulos.filter(a => a.categoria === cat);
+
+  document.getElementById('lista').innerHTML = lista.map(a => {
+    const yaPedido = pedido.find(p => p.codigo === a.codigo);
+    const cantidad = yaPedido ? yaPedido.cantidad : 0;
+
+    return `
+      <li class="flex items-center justify-between border p-3 rounded shadow-sm ${yaPedido ? 'bg-blue-300' : ''}">
+        <div class="text-sm">
+          <div class="font-medium">${a.descripcion}</div>
+          <div class="text-gray-600">$${a.precio}</div>
+          ${yaPedido ? `<div class="text-blue-700 text-xs mt-1">En pedido: ${cantidad}</div>` : ''}
+        </div>
+        <button onclick="agregarPedido('${a.codigo}')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-lg leading-none">＋</button>
+      </li>
+    `;
+  }).join('');
 }
+
+async function enviarOrden() {
+  if (pedido.length === 0) {
+    alert("No hay artículos en el pedido.");
+    return;
+  }
+
+  const fecha = new Date().toLocaleString("es-AR");
+  const payload = {
+    mesa,
+    mozo,
+    pedido,
+    fecha,
+  };
+
+  const res = await fetch("/api/orders.json", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (res.ok) {
+    alert("✅ Pedido enviado a cocina.");
+    pedido = [];
+    renderResumen();
+  } else {
+    alert("❌ Error al enviar el pedido.");
+  }
+}
+
+
+window.agregarPedido = (codigo) => {
+  const art = articulos.find(a => a.codigo === codigo);
+  const existente = pedido.find(p => p.codigo === codigo);
+
+  if (existente) existente.cantidad++;
+  else pedido.push({ ...art, cantidad: 1 });
+
+  renderLista();      // Actualiza la lista resaltando
+  renderResumen();    // Muestra resumen actualizado
+}
+
+function renderResumen() {
+  const contenedor = document.getElementById("resumen");
+
+  if (!contenedor || pedido.length === 0) {
+    contenedor.innerHTML = `<p class="text-sm text-gray-500">Sin artículos agregados.</p>`;
+    return;
+  }
+
+  const total = pedido.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
+
+  contenedor.innerHTML = `
+    <h3 class="text-lg font-semibold mb-2">🧾 Pedido actual</h3>
+    <ul class="text-sm mb-2">
+      ${pedido.map(p => `<li>- ${p.cantidad} x ${p.descripcion}</li>`).join("")}
+    </ul>
+    <div class="font-medium">💰 Total: $${total.toFixed(2)}</div>
+  `;
+}
+
 
 window.init = init;
 init()

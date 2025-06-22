@@ -1235,5 +1235,6 @@ export const GET: APIRoute = async () => {
       precio: "1",
     },
   ];
+  articulos.shift();
   return new Response(JSON.stringify(articulos), {});
 };

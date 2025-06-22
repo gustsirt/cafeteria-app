@@ -1,5 +1,7 @@
 // src\pages\api\orders.json.ts
 
+export const prerender = false;
+
 import type { APIRoute } from "astro";
 import { appendToSheet } from "../../lib/googleSheets";
 
@@ -28,6 +30,7 @@ export const POST: APIRoute = async ({ request }) => {
     fecha,
   ]);
 
+  console.log("🧾 Pedido recibido:", values);
   await appendToSheet("orders", values);
 
   return new Response(JSON.stringify({ success: true }));

@@ -44,7 +44,7 @@ export async function getArticulos() {
       codigo,
       categoria,
       descripcion,
-      precio,
+      precio: Number(precio),
     }),
   );
 }

@@ -4,6 +4,7 @@ import {
   GOOGLE_PRIVATE_KEY,
   GOOGLE_SHEETS_ID,
   CONFIG_SHEET,
+  ORDER_SHEET,
 } from "astro:env/server";
 import { google } from "googleapis";
 
@@ -44,4 +45,35 @@ export async function getWhatsappConfig() {
   const values = res.data.values || [];
   const config = Object.fromEntries(values);
   return config || "";
+}
+
+/**
+ * Agrega datos a una hoja de cálculo
+ * @param range Ejemplo: 'Pedidos!A1'
+ * @param values Array bidimensional: [[valor1, valor2], [fila2...], ...]
+ */
+export async function appendToSheet(rangeString: string, values: any[][]) {
+  const range = rangeString == "orders" ? ORDER_SHEET : null;
+
+  if (range == null) {
+    console.log(
+      "no se puede agregar datos a la hoja de cálculo: Rango incorrecto",
+    );
+    return;
+  }
+
+  try {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: GOOGLE_SHEETS_ID,
+      range,
+      valueInputOption: "USER_ENTERED",
+      resource: {
+        values,
+      },
+    });
+    return "✅ Datos correctamente agregados";
+  } catch (error) {
+    console.error("❌ Error en addToSheet:", error);
+    throw error;
+  }
 }

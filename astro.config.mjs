@@ -16,6 +16,7 @@ export default defineConfig({
       CONFIG_SHEET: envField.string({ context: "server", access: "secret" }),
       ARTICLES_SHEET: envField.string({ context: "server", access: "secret" }),
       ORDER_SHEET: envField.string({ context: "server", access: "secret" }),
+      TOTAL_MESAS: envField.string({ context: "server", access: "secret" }),
     }
   }
 });

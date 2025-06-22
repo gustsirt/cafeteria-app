@@ -1,4 +1,8 @@
 // src\scripts\pedidos.js
+
+// ==============================
+// 🔧 Variables globales
+// ==============================
 const app = document.getElementById("app");
 
 let articulos = [];
@@ -7,6 +11,9 @@ let mozo = ""
 let mesa = ""
 let pedido = [];
 
+// ==============================
+// 🚀 Función principal de inicio
+// ==============================
 async function init() {
   try {
     // --- Cargar Mesas
@@ -25,7 +32,7 @@ async function init() {
       localStorage.setItem("mozo", mozo);
     }
 
-    // Mostrar lista de mesas
+    // Render de la vista principal con mesas
     app.innerHTML = `
       <h2 class="text-2xl font-bold mb-4">👤 Mozo: ${mozo}</h2>
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -60,12 +67,18 @@ async function init() {
   }
 }
 
+// ==============================
+// 📥 Cargar datos de mesas
+// ============================
 async function cargarMesas() {
   const res = await fetch('/api/tables.json');
   if (!res.ok) throw new Error('Error al cargar las mesas');
   mesas = await res.json();
 }
 
+// ==============================
+// 📋 Selección de mesa y carga de interfaz
+// ==============================
 window.seleccionarMesa = (mesaId) => {
   mesa = mesaId;
   const productos = mesas.find(m => m.mesa === mesaId).productos;
@@ -123,6 +136,9 @@ window.seleccionarMesa = (mesaId) => {
   document.getElementById("preparar").addEventListener("click", enviarOrden);
 }
 
+// ==============================
+// 🧾 Render de artículos por categoría
+// ==============================
 function renderLista() {
   const cat = document.getElementById('filtro').value;
   const lista = cat === "__TODAS__" ? articulos : articulos.filter(a => a.categoria === cat);
@@ -144,6 +160,9 @@ function renderLista() {
   }).join('');
 }
 
+// ==============================
+// 📤 Enviar pedido al servidor
+// ==============================
 async function enviarOrden() {
   if (pedido.length === 0) {
     alert("No hay artículos en el pedido.");
@@ -173,7 +192,9 @@ async function enviarOrden() {
   }
 }
 
-
+// ==============================
+// ➕ Agregar artículo al pedido
+// ==============================
 window.agregarPedido = (codigo) => {
   const art = articulos.find(a => a.codigo === codigo);
   const existente = pedido.find(p => p.codigo === codigo);
@@ -185,6 +206,9 @@ window.agregarPedido = (codigo) => {
   renderResumen();    // Muestra resumen actualizado
 }
 
+// ==============================
+// 📄 Render del resumen del pedido
+// ==============================
 function renderResumen() {
   const contenedor = document.getElementById("resumen");
 
@@ -204,6 +228,8 @@ function renderResumen() {
   `;
 }
 
-
+// ==============================
+// ▶️ Iniciar app al cargar
+// ==============================
 window.init = init;
 init()

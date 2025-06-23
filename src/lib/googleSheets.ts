@@ -22,6 +22,10 @@ const auth = new google.auth.GoogleAuth({
 // Cliente de Sheets con auth incluido
 const sheets = google.sheets({ version: "v4", auth });
 
+/**
+ * Funcion para obtener la configuracion de la APP
+ * @returns 
+ */
 export async function getWhatsappConfig() {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: GOOGLE_SHEETS_ID,
@@ -33,6 +37,10 @@ export async function getWhatsappConfig() {
   return config || "";
 }
 
+/**
+ * Funcion para obtener los productos
+ * @returns 
+ */
 export async function getArticulos() {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: GOOGLE_SHEETS_ID,
@@ -80,6 +88,10 @@ export async function appendToSheet(rangeString: string, values: any[][]) {
   }
 }
 
+/**
+ * Obtiene el total ordenado por mesa
+ * @returns 
+ */
 export async function getTablesOrders() {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: GOOGLE_SHEETS_ID,
@@ -115,6 +127,11 @@ export async function getTablesOrders() {
   return mesas;
 }
 
+/**
+ * Permite limpiar mesa luego de la facturación
+ * @param mesa Ejemplo '1'
+ * @returns 
+ */
 export async function removeOrdersFromSheet(mesa: string) {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: GOOGLE_SHEETS_ID,

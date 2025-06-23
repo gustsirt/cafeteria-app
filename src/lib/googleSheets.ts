@@ -187,3 +187,44 @@ async function getSheetIdFromRange(namedRange: string): Promise<number> {
 
   return sheet?.properties?.sheetId || 0;
 }
+
+/**
+ * 
+ * @param id 
+ * @param codigo 
+ * @returns 
+ */
+export async function marcarProductoComoRealizado(id: string, codigo: string) {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: GOOGLE_SHEETS_ID,
+    range: ORDER_SHEET,
+  });
+
+  const rows = res.data.values || [];
+  const header = rows[0];
+  const idIndex = header.indexOf("ID");
+  const codigoIndex = header.indexOf("Codigo");
+  const estadoIndex = header.indexOf("Estado");
+
+  const rowIndex = rows.findIndex(
+    (row, i) =>
+      i > 0 &&
+      row[idIndex] === id &&
+      row[codigoIndex] === codigo
+  );
+
+  if (rowIndex === -1) throw new Error("Fila no encontrada");
+
+  const range = `${ORDER_SHEET.split("!")[0]}!${String.fromCharCode(65 + estadoIndex)}${rowIndex + 1}`;
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: GOOGLE_SHEETS_ID,
+    range,
+    valueInputOption: "USER_ENTERED",
+    requestBody: {
+      values: [["REALIZADO"]],
+    },
+  });
+
+  return true;
+}

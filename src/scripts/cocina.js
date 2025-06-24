@@ -1,35 +1,50 @@
 // src/scripts/cocina.js
 const contenedor = document.getElementById("vista-cocina");
 
+let articulos = [];
+
 async function cargarPedidos() {
   try {
-    const res = await fetch("/api/tables.json");
+    // --- Cargar artículos
+    const articulosres = await fetch(`/api/articles.json`);
+    if (!articulosres.ok) throw new Error("Error al cargar los artículos");
+    articulos = await articulosres.json();
+
+    // --- Cargar pedidos
+    const res = await fetch("/api/orders.json");
     if (!res.ok) throw new Error("Error al cargar pedidos");
 
-    const mesas = await res.json();
-    const agrupado = {};
+    const pedidos = await res.json();
 
-    mesas.forEach(m => {
-      m.productos.forEach(p => {
-        if (!agrupado[p.id]) agrupado[p.id] = [];
-        agrupado[p.id].push({ ...p, mesa: m.mesa });
-      });
-    });
-
-    contenedor.innerHTML = Object.entries(agrupado).map(([id, productos]) => {
+    // Renderizar pedidos
+    contenedor.innerHTML = pedidos.map(pedido => {
       return `
         <div class="bg-white rounded-lg border shadow p-4 mb-4">
-          <h2 class="text-lg font-bold mb-2">🧾 Pedido ID: ${id}</h2>
+          <h2 class="text-lg font-bold mb-1">🧾 Pedido ID: ${pedido.id
+        } - 🍽 Mesa ${pedido.mesa}</h2>
+          <p class="text-sm text-gray-600 mb-2">🧍‍♂️ ${pedido.mozo} | 🕒 ${pedido.fecha
+        } | Estado: <strong>${pedido.estado}</strong></p>
           <ul class="space-y-2">
-            ${productos.map(p => `
-              <li class="flex justify-between items-center border p-2 rounded ${p.estado === 'REALIZADO' ? 'bg-green-100' : 'bg-yellow-100'}">
-                <div>
-                  <strong>Mesa ${p.mesa}</strong> - ${p.codigo} - ${p.cantidad}u
-                  <span class="text-xs text-gray-600 block">Estado: ${p.estado}</span>
-                </div>
-                ${p.estado !== 'REALIZADO' ? `<button class="bg-green-500 text-white px-2 py-1 rounded" onclick="marcarRealizado('${p.id}', '${p.codigo}')">✅ Realizado</button>` : '<span class="text-green-700 font-semibold">Listo</span>'}
-              </li>
-            `).join('')}
+            ${pedido.productos
+          .map((prod) => {
+            const art =
+              articulos.find((a) => a.codigo === prod.codigo) || {};
+            return `
+                <li class="flex justify-between items-center border p-2 rounded bg-yellow-100">
+                  <div>
+                    <strong>${art.categoria || "¿?"}</strong> - ${art.descripcion || prod.codigo
+              } - ${prod.cantidad}u
+                    <span class="text-xs text-gray-600 block">Estado: ${pedido.estado
+              }</span>
+                  </div>
+                  ${pedido.estado !== "REALIZADO"
+                ? `<button class="bg-green-500 text-white px-2 py-1 rounded" onclick="marcarRealizado('${pedido.id}', '${prod.codigo}')">✅ Realizado</button>`
+                : '<span class="text-green-700 font-semibold">Listo</span>'
+              }
+                </li>
+              `;
+          })
+          .join("")}
           </ul>
         </div>
       `;

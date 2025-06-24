@@ -107,7 +107,6 @@ window.seleccionarMesa = (mesaId) => {
   </div>
 
   <div class="mt-6 flex flex-wrap gap-2">
-    <button id="preparar" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">📱 Enviar a cocina</button>
     <button onclick="facturarMesa()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">✅ Facturar</button>
     <button onclick="init()" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">⬅️ Volver</button>
   </div>
@@ -117,6 +116,11 @@ window.seleccionarMesa = (mesaId) => {
   <hr class="my-4" />
   <div>
   <div id="resumen" class="bg-gray-100 p-4 rounded shadow-sm text-sm"></div>
+  </div>
+  
+  <div class="mt-6 flex flex-wrap gap-2">
+    <button id="preparar" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">📱 Enviar a cocina</button>
+  </div>
 
 <hr class="my-4" />
   <span class="block mb-1 text-sm font-medium">Filtrar por categoría</span>

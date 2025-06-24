@@ -3,8 +3,52 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { appendToSheet } from "../../lib/googleSheets";
+import { appendToSheet, getPedidosResumen } from "../../lib/googleSheets.ts";
+import { MODE } from "astro:env/server";
 
+const mockorders = [
+  {
+    id: "1",
+    mozo: "Gustavo",
+    fecha: "22/6/2025 10:55",
+    estado: "nuevo",
+    productos: [
+      {
+        codigo: "1006",
+        cantidad: 1,
+        precio: 1,
+      },
+    ],
+  },
+  {
+    id: "2",
+    mozo: "Gustavo",
+    fecha: "22/6/2025 10:55",
+    estado: "nuevo",
+    productos: [
+      {
+        codigo: "1030",
+        cantidad: 2,
+        precio: 1,
+      },
+    ],
+  },
+  {
+    id: "3",
+    mozo: "Gustavo",
+    fecha: "22/6/2025 10:55",
+    estado: "nuevo",
+    productos: [
+      {
+        codigo: "1030",
+        cantidad: 2,
+        precio: 1,
+      },
+    ],
+  },
+];
+
+// POST: guarda el pedido
 export const POST: APIRoute = async ({ request }) => {
   const { id, mesa, mozo, pedido, fecha } = await request.json();
 
@@ -34,4 +78,25 @@ export const POST: APIRoute = async ({ request }) => {
   await appendToSheet("orders", values);
 
   return new Response(JSON.stringify({ success: true }));
+};
+
+// GET: devuelve resumen de pedidos
+export const GET: APIRoute = async () => {
+  try {
+    let pedidos = [];
+    if (MODE != "DEVELOP") {
+      pedidos = await getPedidosResumen();
+    } else {
+      pedidos = mockorders;
+    }
+    return new Response(JSON.stringify(pedidos), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    console.error("Error al obtener pedidos:", err);
+    return new Response(JSON.stringify({ error: "Error al obtener pedidos" }), {
+      status: 500,
+    });
+  }
 };

@@ -9,6 +9,9 @@ import {
   TOTAL_MESAS, // getTablesOrders
 } from "astro:env/server";
 import { google } from "googleapis";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 
 // 🛡️ Crea el authClient
 const auth = new google.auth.GoogleAuth({
@@ -22,9 +25,8 @@ const auth = new google.auth.GoogleAuth({
 // Cliente de Sheets con auth incluido
 const sheets = google.sheets({ version: "v4", auth });
 
-/**
- * Funcion para obtener la configuracion de la APP
- * @returns 
+/** Funcion para obtener la configuracion de la APP
+ * @returns
  */
 export async function getWhatsappConfig() {
   const res = await sheets.spreadsheets.values.get({
@@ -37,9 +39,8 @@ export async function getWhatsappConfig() {
   return config || "";
 }
 
-/**
- * Funcion para obtener los productos
- * @returns 
+/** Funcion para obtener los productos
+ * @returns
  */
 export async function getArticulos() {
   const res = await sheets.spreadsheets.values.get({
@@ -57,8 +58,7 @@ export async function getArticulos() {
   );
 }
 
-/**
- * Agrega datos a una hoja de cálculo
+/** Agrega datos a una hoja de cálculo
  * @param range Ejemplo: 'Pedidos!A1'
  * @param values Array bidimensional: [[valor1, valor2], [fila2...], ...]
  */
@@ -88,9 +88,8 @@ export async function appendToSheet(rangeString: string, values: any[][]) {
   }
 }
 
-/**
- * Obtiene el total ordenado por mesa
- * @returns 
+/** Obtiene el total ordenado por mesa
+ * @returns
  */
 export async function getTablesOrders() {
   const res = await sheets.spreadsheets.values.get({
@@ -110,7 +109,7 @@ export async function getTablesOrders() {
   }));
 
   for (const fila of filas) {
-    const [id, mesa, mozo, codigo, cantidad, precio, fecha] = fila;
+    const [id, mesa, mozo, codigo, cantidad, precio, fecha, estado] = fila;
 
     const mesaEncontrada = mesas.find((m) => m.mesa === mesa);
     if (mesaEncontrada) {
@@ -127,10 +126,9 @@ export async function getTablesOrders() {
   return mesas;
 }
 
-/**
- * Permite limpiar mesa luego de la facturación
+/** Permite limpiar mesa luego de la facturación
  * @param mesa Ejemplo '1'
- * @returns 
+ * @returns
  */
 export async function removeOrdersFromSheet(mesa: string) {
   const res = await sheets.spreadsheets.values.get({
@@ -188,11 +186,61 @@ async function getSheetIdFromRange(namedRange: string): Promise<number> {
   return sheet?.properties?.sheetId || 0;
 }
 
+/** Obtiene la lista de pedidos con su estado, mozo y fecha
+ * @returns
+ */
+export async function getPedidosResumen() {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: GOOGLE_SHEETS_ID,
+    range: ORDER_SHEET,
+  });
+
+  const datos = res.data.values || [];
+
+  // Remover cabecera
+  const [, ...filas] = datos;
+
+  const pedidosMap = new Map();
+
+  for (const fila of filas) {
+    const [id, mesa, mozo, codigo, cantidad, precio, fecha, estado] = fila;
+
+    if (pedidosMap.has(id)) {
+      pedidosMap.get(id).productos.push({
+        codigo,
+        cantidad: Number(cantidad),
+        precio: Number(precio),
+      });
+    } else {
+      pedidosMap.set(id, {
+        id,
+        mozo,
+        fecha,
+        estado: estado || "nuevo",
+        productos: [
+          {
+            codigo,
+            cantidad: Number(cantidad),
+            precio: Number(precio),
+          },
+        ],
+      });
+    }
+  }
+
+  // Usar dayjs para parsear y ordenar por fecha
+  return Array.from(pedidosMap.values()).sort(
+    (a, b) =>
+      dayjs(a.fecha, "D/M/YYYY H:mm").valueOf() -
+      dayjs(b.fecha, "D/M/YYYY H:mm").valueOf(),
+  );
+}
+
 /**
- * 
- * @param id 
- * @param codigo 
- * @returns 
+ *
+ * @param id
+ * @param codigo
+ * @returns
  */
 export async function marcarProductoComoRealizado(id: string, codigo: string) {
   const res = await sheets.spreadsheets.values.get({
@@ -207,15 +255,14 @@ export async function marcarProductoComoRealizado(id: string, codigo: string) {
   const estadoIndex = header.indexOf("Estado");
 
   const rowIndex = rows.findIndex(
-    (row, i) =>
-      i > 0 &&
-      row[idIndex] === id &&
-      row[codigoIndex] === codigo
+    (row, i) => i > 0 && row[idIndex] === id && row[codigoIndex] === codigo,
   );
 
   if (rowIndex === -1) throw new Error("Fila no encontrada");
 
-  const range = `${ORDER_SHEET.split("!")[0]}!${String.fromCharCode(65 + estadoIndex)}${rowIndex + 1}`;
+  const range = `${ORDER_SHEET.split("!")[0]}!${String.fromCharCode(
+    65 + estadoIndex,
+  )}${rowIndex + 1}`;
 
   await sheets.spreadsheets.values.update({
     spreadsheetId: GOOGLE_SHEETS_ID,

@@ -11,6 +11,7 @@ const mockorders = [
     id: "1",
     mozo: "Gustavo",
     fecha: "22/6/2025 10:55",
+    mesa: "2",
     estado: "nuevo",
     productos: [
       {
@@ -24,6 +25,7 @@ const mockorders = [
     id: "2",
     mozo: "Gustavo",
     fecha: "22/6/2025 10:55",
+    mesa: "1",
     estado: "nuevo",
     productos: [
       {
@@ -37,6 +39,7 @@ const mockorders = [
     id: "3",
     mozo: "Gustavo",
     fecha: "22/6/2025 10:55",
+    mesa: "2",
     estado: "nuevo",
     productos: [
       {

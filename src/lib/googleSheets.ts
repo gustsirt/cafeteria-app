@@ -216,6 +216,7 @@ export async function getPedidosResumen() {
         id,
         mozo,
         fecha,
+        mesa,
         estado: estado || "nuevo",
         productos: [
           {

@@ -1235,9 +1235,9 @@ export const GET: APIRoute = async () => {
 
   if (MODE === "PRODUCTION") {
     articulos = await getArticulos();
+    articulos.shift();
   } else {
     articulos = mockarticulos;
-    articulos.shift();
   }
   return new Response(JSON.stringify(articulos), {});
 };

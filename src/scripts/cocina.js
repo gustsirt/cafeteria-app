@@ -28,7 +28,9 @@ async function cargarPedidos() {
 
 function renderizarPedidos() {
   const estadoSeleccionado = filtroSelect.value;
-  const pedidosFiltrados = todosLosPedidos.filter(p => p.estado === estadoSeleccionado);
+  const pedidosFiltrados = estadoSeleccionado === "TODOS"
+    ? todosLosPedidos
+    : todosLosPedidos.filter(p => p.estado === estadoSeleccionado);
 
   contenedor.innerHTML = pedidosFiltrados.map(pedido => {
     return `

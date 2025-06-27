@@ -1,15 +1,16 @@
+// src/pages/api/marcar-realizado.json.ts
 import type { APIRoute } from "astro";
-import { marcarProductoComoRealizado } from "../../lib/googleSheets.ts";
+import { marcarPedidoComoRealizado } from "../../lib/googleSheets.ts";
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
   const body = await request.json();
-  const { id, codigo } = body;
+  const { id } = body;
 
   try {
-    await marcarProductoComoRealizado(id, codigo);
+    await marcarPedidoComoRealizado(id);
     return new Response(JSON.stringify({ ok: true }));
-  } catch (err) {
+  } catch (err: any) {
     return new Response(
       JSON.stringify({ ok: false, error: err.message }),
       { status: 500 }

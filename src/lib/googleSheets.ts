@@ -243,7 +243,7 @@ export async function getPedidosResumen() {
  * @param codigo
  * @returns
  */
-export async function marcarProductoComoRealizado(id: string, codigo: string) {
+export async function marcarPedidoComoRealizado(id: string) {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: GOOGLE_SHEETS_ID,
     range: ORDER_SHEET,
@@ -252,25 +252,31 @@ export async function marcarProductoComoRealizado(id: string, codigo: string) {
   const rows = res.data.values || [];
   const header = rows[0];
   const idIndex = header.indexOf("ID");
-  const codigoIndex = header.indexOf("Codigo");
   const estadoIndex = header.indexOf("Estado");
+  if (idIndex === -1 || estadoIndex === -1) {
+    throw new Error("Columnas ID o Estado no encontradas");
+  }
 
-  const rowIndex = rows.findIndex(
-    (row, i) => i > 0 && row[idIndex] === id && row[codigoIndex] === codigo,
-  );
+  const updates: { range: string; values: string[][] }[] = [];
 
-  if (rowIndex === -1) throw new Error("Fila no encontrada");
+  rows.forEach((row, i) => {
+    if (i === 0) return; // Saltar encabezado
+    if (row[idIndex] === id) {
+      const cell = `${ORDER_SHEET.split("!")[0]}!${String.fromCharCode(65 + estadoIndex)}${i + 1}`;
+      updates.push({
+        range: cell,
+        values: [["REALIZADO"]],
+      });
+    }
+  });
 
-  const range = `${ORDER_SHEET.split("!")[0]}!${String.fromCharCode(
-    65 + estadoIndex,
-  )}${rowIndex + 1}`;
+  if (updates.length === 0) throw new Error("Pedido no encontrado");
 
-  await sheets.spreadsheets.values.update({
+  await sheets.spreadsheets.values.batchUpdate({
     spreadsheetId: GOOGLE_SHEETS_ID,
-    range,
-    valueInputOption: "USER_ENTERED",
     requestBody: {
-      values: [["REALIZADO"]],
+      valueInputOption: "USER_ENTERED",
+      data: updates,
     },
   });
 

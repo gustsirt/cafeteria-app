@@ -58,20 +58,20 @@ function renderizarPedidos() {
   }).join('');
 }
 
-window.marcarRealizado = async function (id, codigo) {
-  const confirmacion = confirm("¿Marcar producto como REALIZADO?");
-  if (!confirmacion) return;
+window.marcarPedidoRealizado = async function (id) {
+  const confirmar = confirm("¿Marcar pedido completo como REALIZADO?");
+  if (!confirmar) return;
 
   const res = await fetch("/api/marcar-realizado.json", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, codigo })
+    body: JSON.stringify({ id })
   });
 
   if (res.ok) {
     await cargarPedidos();
   } else {
-    alert("Error marcando producto.");
+    alert("Error actualizando estado del pedido.");
   }
 };
 

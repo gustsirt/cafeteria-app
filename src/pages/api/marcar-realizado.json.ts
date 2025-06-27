@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
-import { marcarProductoComoRealizado } from "../../lib/googleShee.ts";
+import { marcarProductoComoRealizado } from "../../lib/googleSheets.ts";
+export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
   const body = await request.json();

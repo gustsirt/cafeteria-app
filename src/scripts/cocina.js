@@ -1,5 +1,6 @@
 // src/scripts/cocina.js
 const contenedor = document.getElementById("vista-cocina");
+const filtroSelect = document.getElementById("filtro-estado");
 
 let articulos = [];
 let todosLosPedidos = [];
@@ -26,8 +27,8 @@ async function cargarPedidos() {
 }
 
 function renderizarPedidos() {
-  // const estadoSeleccionado = filtroSelect.value;
-  // const pedidosFiltrados = todosLosPedidos.filter(p => p.estado === estadoSeleccionado);
+  const estadoSeleccionado = filtroSelect.value;
+  const pedidosFiltrados = todosLosPedidos.filter(p => p.estado === estadoSeleccionado);
 
   contenedor.innerHTML = todosLosPedidos.map(pedido => {
     return `

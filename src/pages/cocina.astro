@@ -10,6 +10,15 @@ import Layout from "../layouts/Layout.astro";
       <h1 class="text-2xl font-bold m-4">Cocina - Pedidos</h1>
       <a href="/" class="text-2xl font-bold m-4 text-blue-700">Mesas</a>
     </div>
+    <div class="mb-4">
+      <label for="filtro-estado" class="mr-2 font-semibold"
+        >Filtrar por estado:</label
+      >
+      <select id="filtro-estado" class="border p-1 rounded">
+        <option value="NUEVO">NUEVO</option>
+        <option value="REALIZADO">REALIZADO</option>
+      </select>
+    </div>
   </div>
   <div id="vista-cocina"></div>
 

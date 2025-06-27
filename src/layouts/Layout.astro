@@ -14,12 +14,6 @@ const { title = "Cafetería" } = Astro.props;
   >
 
   <body class="p-4 font-sans bg-gray-50">
-    <div class="flex flex-col gap-4">
-      <img src="/logo.png" alt="Logo cafetería" class="w-60" />
-      <div class="bg-gray-200">
-        <h1 class="text-2xl font-bold mb-4">{title}</h1>
-      </div>
-    </div>
     <slot />
   </body>
 </html>

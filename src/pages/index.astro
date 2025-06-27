@@ -4,6 +4,13 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
+  <div class="flex flex-col gap-4">
+    <img src="/logo.png" alt="Logo cafetería" class="w-60" />
+    <div class="bg-gray-200 flex justify-between">
+      <h1 class="text-2xl font-bold m-4">Cafetería</h1>
+      <a href="/cocina" class="text-2xl font-bold m-4 text-blue-700">Cocina</a>
+    </div>
+  </div>
   <div id="app"></div>
 
   <script type="module">

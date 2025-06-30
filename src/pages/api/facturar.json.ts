@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { removeOrdersFromSheet } from "../../lib/googleSheets";
+export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
   const { mesa } = await request.json();

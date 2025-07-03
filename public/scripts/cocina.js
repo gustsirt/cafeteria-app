@@ -53,6 +53,7 @@ function renderizarPedidos() {
         ? `<button class="bg-green-500 text-white px-3 py-1 rounded" onclick="marcarPedidoRealizado('${pedido.id}')">✅ Marcar como Realizado</button>`
         : '<span class="text-green-700 font-semibold">✔️ Pedido Listo</span>'
       }
+      <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="borrarPedido('${pedido.id}')">✅ Marcar como Realizado</button>
       </div>
     `;
   }).join('');
@@ -72,6 +73,24 @@ window.marcarPedidoRealizado = async function (id) {
     await cargarPedidos();
   } else {
     alert("Error actualizando estado del pedido.");
+  }
+};
+
+window.borrarPedido = async function (pedido) {
+  const confirmar = confirm("¿Borrar este pedido?");
+  if (!confirmar) return;
+
+  const res = await fetch("/api/borrar-order.json", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pedido })
+  });
+
+  if (res.ok) {
+    alert("✅ Pedido Eliminado.");
+    await cargarPedidos();
+  } else {
+    alert("❌ No se pudo eliminar el pedido.");
   }
 };
 

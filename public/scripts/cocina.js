@@ -53,7 +53,7 @@ function renderizarPedidos() {
         ? `<button class="bg-green-500 text-white px-3 py-1 rounded" onclick="marcarPedidoRealizado('${pedido.id}')">✅ Marcar como Realizado</button>`
         : '<span class="text-green-700 font-semibold">✔️ Pedido Listo</span>'
       }
-      <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="borrarPedido('${pedido.id}')">✅ Marcar como Realizado</button>
+      <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="borrarPedido('${pedido.id}')">❌ Borrar pedido</button>
       </div>
     `;
   }).join('');

@@ -172,6 +172,55 @@ export async function removeOrdersFromSheet(mesa: string) {
   return `Borradas ${indicesParaBorrar.length} filas.`;
 }
 
+/** Permite limpiar mesa luego de la facturación
+ * @param mesa Ejemplo '1'
+ * @returns
+ */
+export async function removeOrderFromSheet(id: string) {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: GOOGLE_SHEETS_ID,
+    range: ORDER_SHEET,
+  });
+
+  const rows = res.data.values || [];
+  const [, ...filas] = rows; // saca primer elemento
+
+
+  const indicesParaBorrar = filas
+    .map((fila, i) => ({ index: i + 1, pedido: fila[0] })) // index real = +1 por header
+    .filter((fila) => fila.pedido === id)
+    .map((f) => f.index);
+
+  console.log("indicesParaBorrar: ", indicesParaBorrar);
+
+
+  if (indicesParaBorrar.length === 0) return "Nada que borrar.";
+
+  // Borramos desde el final hacia el principio
+  indicesParaBorrar.sort((a, b) => b - a);
+
+  for (const i of indicesParaBorrar) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: GOOGLE_SHEETS_ID,
+      requestBody: {
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId: await getSheetIdFromRange(ORDER_SHEET),
+                dimension: "ROWS",
+                startIndex: i,
+                endIndex: i + 1,
+              },
+            },
+          },
+        ],
+      },
+    });
+  }
+
+  return `Borradas ${indicesParaBorrar.length} filas.`;
+}
 // 🧠 Devuelve el sheetId necesario para borrar filas
 async function getSheetIdFromRange(namedRange: string): Promise<number> {
   const res = await sheets.spreadsheets.get({
